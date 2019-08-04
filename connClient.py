@@ -38,9 +38,9 @@ class connClient(TCPServer,connBase):
         self.writeLock.acquire()
         wbl = len(self.writeBuffer)/1024
         self.writeLock.release()
-        s = 'conn add  %s, conn:%s,in:%s,out:%s,oById:%s,addTask:%s,waitId:%s'%\
+        s = 'conn add  %s, conn:%s,in:%s,out:%s,oById:%s,addTask:%s,waitId:%s,checkConn:%s'%\
             (conn_id,len(self.connMap),self.outputSize/1024,wbl,len(self.outputMap_byId),\
-            len(self.addTaskMap),len(self.waitIdMap))
+            len(self.addTaskMap),len(self.waitIdMap),len(self.streamCloseSign))
         t = int(getRunningTime()*1000)/1000.0
         msg = '%s  %s\n' %( t,s)
         print (msg)
