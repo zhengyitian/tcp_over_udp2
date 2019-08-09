@@ -30,10 +30,9 @@ class UStreamClient(streamBase):
         self.span = span
         self.newPortLimit = limit*span
         self.newPortThisPeriod = 0
+        self.newPortThisSecond = 0
         self.maxRecTime = 0
         self.minRecTime = float('inf')
-        self.nextTimeout = getRunningTime()
-        self.newPortTime = getRunningTime()
         self.newPortMap = {}
         self.iniTout = iniTout
         self.timeoutTime = iniTout
@@ -49,6 +48,8 @@ class UStreamClient(streamBase):
         self.ONum = ONum
         self.closeTime = closeTime
         self.startTime = getRunningTime()
+        self.tooMuchPorts1 = False
+        self.tooMuchPorts2 = False
         
     def calPara(self):
         if self.statisGot!=0:
@@ -93,13 +94,13 @@ class UStreamClient(streamBase):
     def refreshNewPortTime(self):
         t = getRunningTime()
         if not self.newPortMap or sum(self.newPortMap.values())<self.newPortLimit:
-            return float('inf')
+            return t
         su = sum(self.newPortMap.values())                
         l = sorted(self.newPortMap.keys())
         for i in l:
             su-=self.newPortMap[i]
             if su<self.newPortLimit:
-                return i
+                return i+self.span
             
     def refreshNextTimeout(self):
         t = getRunningTime()
@@ -112,7 +113,7 @@ class UStreamClient(streamBase):
         return minT+self.timeoutTime
     
     def adjustPortNum(self,dose):
-        if self.newPortTime!=float('inf'):
+        if self.tooMuchPorts1 and not self.tooMuchPorts2:
             self.decreaseDose = self.DDose
             return
         if self.blankRec!=0 and self.blankSend!=0 and self.statisGot>self.LGot:        
@@ -134,8 +135,17 @@ class UStreamClient(streamBase):
                 return
      
             t = getRunningTime()
-            mTime = min(self.nextTimeout,self.newPortTime)
-            if t>mTime or mTime==float('inf'):
+            if len(self.availPort)!=0:
+                t1 = self.refreshNewPortTime()
+                self.tooMuchPorts1 = True
+            else:
+                t1 = float('inf')
+                self.tooMuchPorts2 = True
+            t2 = self.refreshNextTimeout()
+            mTime = min(t1,t2)
+            if mTime==float('inf'):
+                wt = 1
+            elif t>mTime :
                 wt = 0         
             else:
                 wt = mTime-t       
@@ -157,15 +167,13 @@ class UStreamClient(streamBase):
             sendNum = l+len(self.availPort2)
             re = self.get_data_to_send(sendNum)                   
             self.sendData(re)
-            self.newPortTime = self.refreshNewPortTime()
-            self.nextTimeout = self.refreshNextTimeout()         
             if getRunningTime()-self.staTime>1:
                 self.staTime = getRunningTime()  
                 bl = self.getLog()
                 t = int(getRunningTime()*1000)/1000.0
                 s1 =  '%-4s [port,g,o]  %s  %s  %s  [lag,max,min]  %2.3f  %2.3f  %2.3f  [newPort]  %s'%\
                     (t,self.MPort-len(self.cachePort),self.statisGot,self.statisOut,self.statusGapTime,\
-                     self.maxRecTime,self.minRecTime,int(self.newPortThisPeriod/self.span))
+                     self.maxRecTime,self.minRecTime,self.newPortThisSecond)
                 s2 = '%s %s\n'%(t,bl)
                 if self.blankRec==0 or self.blankSend==0:
                     sy = '+'
@@ -177,9 +185,9 @@ class UStreamClient(streamBase):
                      getPackStaBigV(self.peerMaxSend),getPackStaBigV(self.maxRec),sy)
                 writeLog(msg)
                 dose = self.calPara()
-                self.newPortTime = self.refreshNewPortTime()
                 self.adjustPortNum(dose)                
-                
+                self.tooMuchPorts1 = False
+                self.tooMuchPorts2 = False
                 self.statisGot = self.statisOut = self.maxRecTime = 0
                 self.minRecTime = float('inf')
                 self.rRaw = self.wRaw = self.rNet = self.wNet = 0
@@ -213,6 +221,7 @@ class UStreamClient(streamBase):
                 del self.reusedPort[k]
             else:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+                self.newPortThisSecond += 1
                 if ft in self.newPortMap:
                     self.newPortMap[ft]+=1
                 else:
