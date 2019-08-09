@@ -35,7 +35,7 @@ class UStreamClient(streamBase):
         self.newPortMap = {}
         self.timeoutTime = timeoutTime
         self.decreaseDose = 0
-        
+        self.startTime = getRunningTime()
     def calPara(self):
         if self.statisGot!=0:
             self.waitingTime = self.maxRecTime-self.minRecTime
@@ -138,7 +138,7 @@ class UStreamClient(streamBase):
             if getRunningTime()-self.staTime>1:
                 self.staTime = getRunningTime()  
                 bl = self.getLog()
-                t = int(getRunningTime()*1000)/1000.0
+                t = int((getRunningTime()-self.startTime)*1000)/1000.0
                 s1 =  '%s [port,g,o]  %s  %s  %s  [lag,max,min]  %2.3f  %2.3f  %2.3f  [newPort]  %s  [s,r]  %s  %s  %s  %s'%\
                     (t,maxPortNum-len(self.cachePort),self.statisGot,self.statisOut,self.statusGapTime,\
                      self.maxRecTime,self.minRecTime,int(self.newPortThisPeriod/regulateTimeSpan),\

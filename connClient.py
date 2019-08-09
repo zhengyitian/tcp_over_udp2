@@ -20,6 +20,7 @@ class connClient(TCPServer,connBase):
         IOLoop.current().add_callback(t.start)
         self.listen(listenPort,listenIp)
         self.connId = 0
+        self.startTime = getRunningTime()
         
     @gen.coroutine
     def handle_stream(self, stream, address):
@@ -41,7 +42,7 @@ class connClient(TCPServer,connBase):
         s = 'conn add  %s, conn:%s,in:%s,out:%s,oById:%s,addTask:%s,waitId:%s,checkConn:%s'%\
             (conn_id,len(self.connMap),self.outputSize/1024,wbl,len(self.outputMap_byId),\
             len(self.addTaskMap),len(self.waitIdMap),len(self.streamCloseSign))
-        t = int(getRunningTime()*1000)/1000.0
+        t = int((getRunningTime()-self.startTime)*1000)/1000.0
         msg = '%s  %s\n' %( t,s)
         print (msg)
         logging.debug(msg)
@@ -52,7 +53,7 @@ class connClient(TCPServer,connBase):
         del self.waitIdMap[id]
 
         back = msg.m_json
-        t = int(getRunningTime()*1000)/1000.0
+        t = int((getRunningTime()-self.startTime)*1000)/1000.0
         s = '%s  conn reply %s, conn:%s ,ret:%s\n'%(t,back['conn_id'],len(self.connMap),back['ret'])
         print (s)
         logging.debug(s)
