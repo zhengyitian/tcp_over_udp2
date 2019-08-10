@@ -173,8 +173,7 @@ class UStreamClient(streamBase):
                 clearPackSta(self.peerMaxRec)          
                 clearPackSta(self.peerMaxSend)          
                 print (s1)
-                print (s2)
-                print(len(self.availPort),len(self.availPort2),len(self.cachePort),len(self.reusedPort),len(self.newPortMap))               
+                print (s2)           
                 logging.debug(s1)
                 logging.debug(s2)
                 
