@@ -32,7 +32,7 @@ class ts():
                     break
                 co += 1
                 if co%10==0:
-                    print 'co1',co,getRunningTime()      
+                    print ('co1',co,getRunningTime())      
     @gen.coroutine
     def doWrite(self):
         co = 0
@@ -49,4 +49,4 @@ class ts():
                 self.writeLock.release()
                 co += 1
                 if co%10==0:
-                    print 'co2',co,getRunningTime()                        
+                    print ('co2',co,getRunningTime())                        

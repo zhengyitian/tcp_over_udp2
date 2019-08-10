@@ -59,7 +59,7 @@ class UStreamServer(streamBase):
                 clearPackSta(self.maxRec)          
                 clearPackSta(self.peerMaxRec)          
                 clearPackSta(self.peerMaxSend)            
-                print len(self.maxSendL),len(self.maxRec),len(self.peerMaxSend),len(self.peerMaxRec)
+                print (len(self.maxSendL),len(self.maxRec),len(self.peerMaxSend),len(self.peerMaxRec))
                 
 if __name__ == "__main__":
     import threading
@@ -69,11 +69,11 @@ if __name__ == "__main__":
     ioloop = IOLoop.current()
     upper = ts(ioloop)
     serverIp = con_serverIp
-    listenPort = range(10000,10000+maxPortNum)
+    listenPort = list(range(10000,10000+maxPortNum))
     rate = con_minRate
     pushAhead = con_pushAhead
     packLimit = con_packLimit
-    salt = 'salt'
+    salt = b'salt'
     u = UStreamServer(upper,listenPort,salt,rate,pushAhead,packLimit)
     t = threading.Thread(target=u.doWork)
     t.setDaemon(True)

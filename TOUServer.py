@@ -4,8 +4,8 @@ import sys
 
 from collections import deque
 runningPath = os.path.split(os.path.realpath(__file__))[0]
-print runningPath  
-mySalt = serviceSaltKey
+print (runningPath)  
+mySalt = serviceSaltKey.encode()
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind(('0.0.0.0',servicePort))
 usedMap = {}
@@ -29,7 +29,7 @@ while True:
         s = base64.b64encode(j)
         ex = sys.executable
         os.system('nohup %s %s/connServer.py %s >/dev/null &'%(ex,runningPath,s))
-        print 'start server:',ports
+        print ('start server:',ports)
         import struct
         re = ''
         for one in ports:
@@ -43,5 +43,6 @@ while True:
             
     m = usedMap[sign]
     j = m['con']
+    j = j.encode()
     data = makePack_server(j, uuid, mySalt)
     sock.sendto(data,addr)
