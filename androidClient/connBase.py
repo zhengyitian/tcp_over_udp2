@@ -38,7 +38,10 @@ class connBase():
         self.streamCloseSign[conn_seq] -= 1
         if self.streamCloseSign[conn_seq]==0:
             del self.streamCloseSign[conn_seq]
-            stream.close()
+            try:
+                stream.close()
+            except:
+                pass
             
     def deal_writeBeforeConnMap(self):
         for k in list(self.writeBeforeConnMap.keys()):
@@ -100,9 +103,25 @@ class connBase():
             if conn_seq not in self.connMap:
                 self.checkStreamClose(conn_seq, stream)
                 return 
+            closeSign = False
             try:
                 data = yield  gen.with_timeout (timedelta(seconds=connCheckTime),stream.read_bytes(eachConnWriteLimit,partial = True))
-            except StreamClosedError:                
+            except StreamClosedError:  
+                closeSign = True            
+            except gen.TimeoutError:
+                try:
+                    IOLoop.current().remove_handler(stream.socket)
+                    state = (stream._state & ~IOLoop.current().READ)
+                    stream._state = None
+                    stream._read_callback = None
+                    stream._read_future = None
+                    stream._add_io_state(state)   
+                    data = b''
+                except:
+                    closeSign = True                                
+            except :
+                raise Exception
+            if closeSign:
                 pack = {'type':'readError','conn_seq':conn_seq}
                 msg = TOUMsg(pack,b'')
                 yield self.addTask(msg)
@@ -113,16 +132,6 @@ class connBase():
                 self.checkDelConn(conn_seq)              
                 self.checkStreamClose(conn_seq, stream)
                 return
-            except gen.TimeoutError:
-                IOLoop.current().remove_handler(stream.socket)
-                state = (stream._state & ~IOLoop.current().READ)
-                stream._state = None
-                stream._read_callback = None
-                stream._read_future = None
-                stream._add_io_state(state)   
-                data = b''
-            except :
-                raise Exception
             
             if conn_seq not in self.connMap :
                 self.checkStreamClose(conn_seq, stream)
