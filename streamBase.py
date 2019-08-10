@@ -37,9 +37,10 @@ class streamBase():
         self.peerMaxRec = {}
           
     def getLog(self):
-        s = '[rate,slope,max]  %2.2f  %s  %s  [raw,net](r/w)  %s  %s  %s  %s  [to,sta,null](r/w)  %s  %s  %s  %s  %s  %s'%\
-            (self.sendStatusRate,self.slope,self.maxSend,int(self.rRaw/1024),int(self.wRaw/1024),int(self.rNet/1024),int(self.wNet/1024),\
-             self.totalRec,self.statusRev,self.blankRec,self.totalSend,self.statusSend,self.blankSend)
+        s = '[raw,net](r/w)  %s  %s  %s  %s  [to,sta,null](r/w)  %s  %s  %s  %s  %s  %s  [rate,slope,max]  %2.2f  %s  %s'%\
+            (int(self.rRaw/1024),int(self.wRaw/1024),int(self.rNet/1024),int(self.wNet/1024),\
+             self.totalRec,self.statusRev,self.blankRec,self.totalSend,self.statusSend,self.blankSend,\
+             self.sendStatusRate,self.slope,self.maxSend)
         return s
         
     def dealStatusBack(self,re):

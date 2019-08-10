@@ -105,7 +105,8 @@ class connBase():
                 return 
             closeSign = False
             try:
-                data = yield  gen.with_timeout (timedelta(seconds=connCheckTime),stream.read_bytes(eachConnWriteLimit,partial = True))
+                data = yield  gen.with_timeout (timedelta(seconds=connCheckTime),\
+                        stream.read_bytes(eachConnWriteLimit,partial = True), quiet_exceptions=(StreamClosedError))
             except StreamClosedError:  
                 closeSign = True            
             except gen.TimeoutError:

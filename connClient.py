@@ -37,10 +37,10 @@ class connClient(TCPServer,connBase):
         yield self.addTask(msg)
         
         self.writeLock.acquire()
-        wbl = len(self.writeBuffer)/1024
+        wbl = int(len(self.writeBuffer)/1024)
         self.writeLock.release()
         s = 'conn add  %s, conn:%s,in:%s,out:%s,oById:%s,addTask:%s,waitId:%s,checkConn:%s'%\
-            (conn_id,len(self.connMap),self.outputSize/1024,wbl,len(self.outputMap_byId),\
+            (conn_id,len(self.connMap),int(self.outputSize/1024),wbl,len(self.outputMap_byId),\
             len(self.addTaskMap),len(self.waitIdMap),len(self.streamCloseSign))
         t = int((getRunningTime()-self.startTime)*1000)/1000.0
         msg = '%s  %s\n' %( t,s)
@@ -66,10 +66,9 @@ if __name__ == "__main__":
     rate = con_minRate
     pushAhead = con_pushAhead
     packLimit = con_packLimit
-    salt = 'salt'
+    salt = b'salt'
     clientListenIp = '0.0.0.0'
     clientListenPort = 9999
-    
     t = connClient(serverListenPort,salt,rate,pushAhead,packLimit,clientListenIp,clientListenPort)
     IOLoop.instance().start()
     

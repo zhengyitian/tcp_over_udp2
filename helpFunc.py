@@ -99,20 +99,20 @@ connCheckTime = 1
 
 #the following parameters can be changed on the client alone, you don't need to change them on the server.
 timeoutTime = 1
-con_serverIp = '45.195.203.220'
+con_serverIp = '45.15.11.249'
 #con_serverIp = '202.182.122.187'
 #con_serverIp =  '192.168.100.60'
 maxPortNum = 100
 minPortNum = 10
-con_portIncreaseDose = 2
-con_portDecreaseDose = 2
+con_portIncreaseDose = 3
+con_portDecreaseDose = 1
 minPackGot = 100
 con_minRate = 0.08
 con_maxRate = 0.5
 con_pushAhead = 3000
 con_packLimit = 1400
-regulateTimeSpan = 1
-perSecondPortsLimit = 20
+regulateTimeSpan = 0.3
+perSecondPortsLimit = 30
 def getCustomPortsLimit(currentPortNum,gotPacketsNum,lostPacketsNum,rawReadSpeed,rawWriteSpeed):
     if rawReadSpeed>250*1024:
         if  lostPacketsNum>10:
@@ -216,7 +216,7 @@ class TOUMsg():
         
     def pack(self):
         j = json.dumps(self.m_json)
-        j.encode()
+        j = j.encode()
         jL = len(j)
         cL = len(self.strContetn)
         self.length = 16+jL+cL

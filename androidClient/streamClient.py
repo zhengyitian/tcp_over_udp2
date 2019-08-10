@@ -32,6 +32,9 @@ class UStreamClient(streamBase):
         self.newPortThisPeriod = 0
         self.newPortThisSecond = 0
         self.maxRecTime = 0
+        self.maxRecTimeQ = deque()
+        for i in range(20):
+            self.maxRecTimeQ.append(0)        
         self.minRecTime = float('inf')
         self.newPortMap = {}
         self.iniTout = iniTout
@@ -70,7 +73,7 @@ class UStreamClient(streamBase):
         if self.statisGot==0:
             self.timeoutTime = self.iniTout
         else:
-            self.timeoutTime = self.maxRecTime+0.1
+            self.timeoutTime = max(self.maxRecTimeQ)+0.1
         lossRate = 1
         if self.statisGot+self.statisOut!=0:
             lossRate = float(self.statisOut)/(self.statisGot+self.statisOut)
@@ -184,6 +187,8 @@ class UStreamClient(streamBase):
                      int(self.rRaw/1024),getPackStaBigV(self.maxSendL),getPackStaBigV(self.peerMaxRec),\
                      getPackStaBigV(self.peerMaxSend),getPackStaBigV(self.maxRec),sy)
                 writeLog(msg)
+                self.maxRecTimeQ.append(self.maxRecTime)
+                self.maxRecTimeQ.popleft()                
                 dose = self.calPara()
                 self.adjustPortNum(dose)                
                 self.tooMuchPorts1 = False
