@@ -135,9 +135,9 @@ class SimpleApp(kivy.app.App):
         l = os.listdir()
         self.con = {}
         if 'my_config.json' not in l:
-            self.con={'ip':'45.195.203.220','port':19023,'key':'bigxSalt','Tout':1,'MPort':100,'LPort':10,\
-               'IDose':4,'DDose':2,'LRate':0.08,'MRate':0.5,'Ahead':3000,'size':1400,\
-               'span':1,'limit':100,'speed':250,'ONum':10,'dose2':1,'LGot':100,\
+            self.con={'ip':'45.15.11.249','port':19023,'key':'bigxSalt','Tout':1,'MPort':100,'LPort':10,\
+               'IDose':3,'DDose':1,'LRate':0.08,'MRate':0.5,'Ahead':2000,'size':1400,\
+               'span':0.3,'limit':30,'speed':250,'ONum':10,'dose2':1,'LGot':100,\
                'listen':9999,'close':50}
         else:
             f = open('my_config.json')
