@@ -6,7 +6,7 @@ import socket,select
 from datetime import datetime
 import os
 from collections import deque
-
+import functools
 
 class UStreamClient(streamBase):
     def __init__(self,upper,listenPort,salt,rate,pushAhead,packLimit,iniTout,serverIp,\
@@ -133,7 +133,8 @@ class UStreamClient(streamBase):
     def doWork(self):        
         while True:    
             if getRunningTime()-self.updatedTime>self.closeTime:
-                writeLog('work process closed')
+                msg = 'work process closed'
+                self.upper.ioloop.add_callback(functools.partial(self.upper.addLogCB,msg))
                 self.upper.ioloop.add_callback(self.upper.quit) 
                 return
      
@@ -186,7 +187,7 @@ class UStreamClient(streamBase):
                     (self.MPort-len(self.cachePort),self.statisGot,self.statisOut,self.statusGapTime,\
                      int(self.rRaw/1024),getPackStaBigV(self.maxSendL),getPackStaBigV(self.peerMaxRec),\
                      getPackStaBigV(self.peerMaxSend),getPackStaBigV(self.maxRec),sy)
-                writeLog(msg)
+                self.upper.ioloop.add_callback(functools.partial(self.upper.addLogCB,msg))
                 self.maxRecTimeQ.append(self.maxRecTime)
                 self.maxRecTimeQ.popleft()                
                 dose = self.calPara()

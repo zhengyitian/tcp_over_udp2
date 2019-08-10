@@ -1,6 +1,7 @@
 import hashlib, binascii,time,uuid,json
 import struct,random,string
 import time
+import json,uuid
 
 con_listenIp = '0.0.0.0'
 recLen = 10240
@@ -9,7 +10,7 @@ con_streamBufferSize = 10*1024*1024
 eachConnWriteLimit = 1024*1024
 tcpManagerCacheSize = 500*1024*1024
 connCheckTime = 1
-
+packetsStatisTime=1
 maxSendConfig=[{'small':0,'big':0.05,'slope':1,'maxSend':3},
                {'small':0.05,'big':0.1,'slope':1.5,'maxSend':3},
                {'small':0.1,'big':0.4,'slope':2,'maxSend':4},
@@ -17,14 +18,8 @@ maxSendConfig=[{'small':0,'big':0.05,'slope':1,'maxSend':3},
                {'small':0.6,'big':0.8,'slope':4,'maxSend':8},
                {'small':0.8,'big':1,'slope':5,'maxSend':10},]
 
-import threading
-logLock = threading.Lock()
-import json,uuid
-
 def getRunningTime():
     return time.monotonic()
-
-packetsStatisTime=1
 
 def getPackStaBigV(m):
     mv = 0
@@ -57,7 +52,6 @@ def createLog():
     
 def writeLog(con):
     t1 = getRunningTime()
-    logLock.acquire()
     f = open('mylog.txt')
     s = f.read()
     f.close()
@@ -66,8 +60,7 @@ def writeLog(con):
     try:
         m = json.loads(s)
     except:
-        logLock.release()
-        print("use time",getRunningTime()-t1)
+        print("use time",getRunningTime()-t1,getRunningTime())
         return
     for k in list(m.keys()):
         v = m[k]['createTime']
@@ -82,26 +75,20 @@ def writeLog(con):
     f = open('mylog.txt','w')
     f.write(j)
     f.close()
-    logLock.release()
-    print("use time",getRunningTime()-t1)
+    print("use time",getRunningTime()-t1,getRunningTime())
     
 def readLog():
-    logLock.acquire()
     f = open('mylog.txt')
     s = f.read()
     f.close()   
     try:
         m = json.loads(s)
     except:
-        logLock.release()
         return {}
     mm = {}
     for k,v in m.items():
         mm[k]=v['con']
-    logLock.release()
     return mm
-    
-
 
 class structWrapper():
     def __init__(self,s=b''):

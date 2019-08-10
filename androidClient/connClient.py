@@ -31,6 +31,9 @@ class connClient(TCPServer,connBase):
         self.exit = False
         self.logCache = []
         
+    def addLogCB(self,ss):
+        self.logCache.append(ss)
+        
     def flushLog(self):
         writeLog(self.logCache)
         self.logCache = []
