@@ -54,6 +54,7 @@ def createLog():
     f = open('mylog.txt','w')
     f.close()
     
+    
 def writeLog(con):
     t1 = getRunningTime()
     logLock.acquire()
@@ -72,7 +73,11 @@ def writeLog(con):
         v = m[k]['createTime']
         if v<getRunningTime()-10 and len(m)>10:
             del m[k]
-    m[str(uuid.uuid1())]={'createTime':getRunningTime(),'con':con}
+    if type(con)==type([]):
+        for one in con:
+            m[str(uuid.uuid1())]={'createTime':getRunningTime(),'con':one}
+    else:
+        m[str(uuid.uuid1())]={'createTime':getRunningTime(),'con':con}
     j = json.dumps(m)
     f = open('mylog.txt','w')
     f.write(j)

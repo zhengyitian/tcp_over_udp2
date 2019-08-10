@@ -182,7 +182,7 @@ class UStreamClient(streamBase):
                     sy = '+'
                 else:
                     sy = '-'
-                msg = '%-4s %-5s %-5s %2.2f %5s [s,r] %-4s %-4s %-4s %-4s %s\n'%\
+                msg = '%-4s %-5s %-5s %2.2f %5s s/r %-4s %-4s %-4s %-4s %s\n'%\
                     (self.MPort-len(self.cachePort),self.statisGot,self.statisOut,self.statusGapTime,\
                      int(self.rRaw/1024),getPackStaBigV(self.maxSendL),getPackStaBigV(self.peerMaxRec),\
                      getPackStaBigV(self.peerMaxSend),getPackStaBigV(self.maxRec),sy)

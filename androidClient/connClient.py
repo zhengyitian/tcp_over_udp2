@@ -25,9 +25,15 @@ class connClient(TCPServer,connBase):
         self.connId = 0
         self.startTime = getRunningTime()
         self.commandId = commandId
-        PeriodicCallback(self.readCommand,200).start()
-        PeriodicCallback(self.writeCommand,200).start()
+        PeriodicCallback(self.readCommand,500).start()
+        PeriodicCallback(self.writeCommand,500).start()
+        PeriodicCallback(self.flushLog,1000).start()
         self.exit = False
+        self.logCache = []
+        
+    def flushLog(self):
+        writeLog(self.logCache)
+        self.logCache = []
         
     def readCommand(self):
         if self.outputSize >= tcpManagerCacheSize:
@@ -88,7 +94,7 @@ class connClient(TCPServer,connBase):
         print (msg)
         t = int((getRunningTime()-self.startTime)*100)/100.0
         ss = '#######  %ss  ##  conn sent  %s  %s\n'%(t,conn_id,len(self.connMap))
-        writeLog(ss)        
+        self.logCache.append(ss)    
         
         yield e.wait()
         msg = self.outputMap_byId[id]['msg']
@@ -102,7 +108,8 @@ class connClient(TCPServer,connBase):
 
         t = int((getRunningTime()-self.startTime)*100)/100.0
         ss = '#######  %ss  ##  conn back  %s  %s\n'%(t,back['conn_id'],len(self.connMap))
-        writeLog(ss)
+        self.logCache.append(ss)
+
         if back['ret'] == 0:
             del self.connMap[back['conn_id']]                  
               

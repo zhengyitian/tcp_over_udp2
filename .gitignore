@@ -1,3 +1,6 @@
 
 *.pyc
 *.log
+*.txt
+*.json
+androidClient/service_config
