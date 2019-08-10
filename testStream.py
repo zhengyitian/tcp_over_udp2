@@ -12,8 +12,8 @@ class ts():
         self.wEvent = Event()
         self.writeLock = threading.Lock()
         self.readLock = threading.Lock()
-        self.writeBuffer = ''
-        self.readBuffer = ''
+        self.writeBuffer = b''
+        self.readBuffer = b''
         IOLoop.current().add_callback(self.doRead)
         IOLoop.current().add_callback(self.doWrite)
         
