@@ -43,7 +43,7 @@ class ts():
                 if len(self.writeBuffer)>con_streamBufferSize:
                     break
                 yield gen.sleep(random.randint(3,20)/10.0)
-                msg = TOUMsg({},'s'*random.randint(10,2000))
+                msg = TOUMsg({},b's'*random.randint(10,2000))
                 self.writeLock.acquire()
                 self.writeBuffer += msg.pack()
                 self.writeLock.release()
