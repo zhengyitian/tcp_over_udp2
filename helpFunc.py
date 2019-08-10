@@ -216,7 +216,7 @@ class TOUMsg():
         
     def pack(self):
         j = json.dumps(self.m_json)
-        j.encode()
+        j = j.encode()
         jL = len(j)
         cL = len(self.strContetn)
         self.length = 16+jL+cL

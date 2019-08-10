@@ -30,6 +30,9 @@ class UStreamClient(streamBase):
         self.newPortThisPeriod = 0
         self.newPortThisSecond = 0
         self.maxRecTime = 0
+        self.maxRecTimeQ = deque()
+        for i in range(20):
+            self.maxRecTimeQ.append(0)
         self.minRecTime = float('inf')
         self.newPortMap = {}
         self.timeoutTime = timeoutTime
@@ -50,7 +53,7 @@ class UStreamClient(streamBase):
         if self.statisGot==0:
             self.timeoutTime = timeoutTime
         else:
-            self.timeoutTime = self.maxRecTime+0.1
+            self.timeoutTime = max(self.maxRecTimeQ)+0.1
         lossRate = 1
         if self.statisGot+self.statisOut!=0:
             lossRate = float(self.statisOut)/(self.statisGot+self.statisOut)
@@ -149,12 +152,14 @@ class UStreamClient(streamBase):
                 self.staTime = getRunningTime()  
                 bl = self.getLog()
                 t = int((getRunningTime()-self.startTime)*1000)/1000.0
-                s1 =  '%s [port,g,o]  %s  %s  %s  [lag,max,min]  %2.3f  %2.3f  %2.3f  [newPort]  %s  [s,r]  %s  %s  %s  %s'%\
-                    (t,maxPortNum-len(self.cachePort),self.statisGot,self.statisOut,self.statusGapTime,\
-                     self.maxRecTime,self.minRecTime,self.newPortThisSecond,\
+                s1 =  '%s  [p/g/o/new]    %s  %s  %s  %s  [l/ma/mi]  %2.3f  %2.3f  %2.3f  [s,r]  %s  %s  %s  %s'%\
+                    (t,maxPortNum-len(self.cachePort),self.statisGot,self.statisOut,self.newPortThisSecond,self.statusGapTime,\
+                     self.maxRecTime,self.minRecTime,\
                      getPackStaBigV(self.maxSendL),getPackStaBigV(self.peerMaxRec),getPackStaBigV(self.peerMaxSend),getPackStaBigV(self.maxRec))
                 s2 = '%s %s\n'%(t,bl)
                 self.newPortThisSecond = 0
+                self.maxRecTimeQ.append(self.maxRecTime)
+                self.maxRecTimeQ.popleft()
                 dose = self.calPara()
                 self.adjustPortNum(dose)                
                 self.tooMuchPorts1 = False
@@ -167,8 +172,9 @@ class UStreamClient(streamBase):
                 clearPackSta(self.maxRec)          
                 clearPackSta(self.peerMaxRec)          
                 clearPackSta(self.peerMaxSend)          
-                print s1
-                print s2
+                print (s1)
+                print (s2)
+                print(len(self.availPort),len(self.availPort2),len(self.cachePort),len(self.reusedPort),len(self.newPortMap))               
                 logging.debug(s1)
                 logging.debug(s2)
                 
@@ -261,11 +267,11 @@ if __name__ == "__main__":
     ioloop = IOLoop.current()
     upper = ts(ioloop)
     serverIp = con_serverIp
-    listenPort = range(10000,10000+maxPortNum)
+    listenPort = list(range(10000,10000+maxPortNum))
     rate = con_minRate
     pushAhead = con_pushAhead
     packLimit = con_packLimit
-    salt = 'salt'
+    salt = b'salt'
     u = UStreamClient(upper,listenPort,salt,rate,pushAhead,packLimit)
     t = threading.Thread(target=u.doWork)
     t.setDaemon(True)
