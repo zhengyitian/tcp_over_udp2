@@ -2,7 +2,7 @@ import hashlib, binascii,time,uuid,json
 import struct,random,string
 import socket
 from contextlib import closing
-import platform,time
+import platform,time,sys
 
 #how to config this program
 
@@ -133,7 +133,10 @@ con_closeTime = 50
 ######################  THIS IS THE END OF THE CONFIG PART  ######################
 
 platformName = platform.system()
+pyV = sys.version_info[0]
 def getRunningTime():    
+    if pyV == 3:
+        return time.monotonic()
     if platformName=='Windows':
         return time.clock()
     elif platformName=='Linux':
@@ -206,13 +209,14 @@ def randomStringDigits(stringLength=6):
     return ''.join(random.choice(lettersAndDigits) for i in range(stringLength))
 
 class TOUMsg():
-    def __init__(self,m = {},s=''):
+    def __init__(self,m = {},s=b''):
         self.m_json = m
         self.strContetn = s
         self.length = 0
         
     def pack(self):
         j = json.dumps(self.m_json)
+        j.encode()
         jL = len(j)
         cL = len(self.strContetn)
         self.length = 16+jL+cL
@@ -231,15 +235,6 @@ class TOUMsg():
         self.strContetn = s[16+jL:16+jL+cL]
         self.length = 16+jL+cL
         return True,s[16+jL+cL:]
-    
-
-def cut_text(text,lenth): 
-    l = []
-    while len(text)>lenth:
-        l.append(text[:lenth])
-        text = text[lenth:]
-    l.append(text)
-    return l
 
 def makePack(s,salt):
     u = str(uuid.uuid1())
@@ -249,51 +244,50 @@ def makePack(s,salt):
     dk = hashlib.pbkdf2_hmac('md5', s1, salt, 2)
     s2 = s1+dk
     return u,s2
+
 def makePack_server(s,u,salt):
     u2 = binascii.unhexlify(u)
     s1 = u2+s
     dk = hashlib.pbkdf2_hmac('md5', s1, salt, 2)
     s2 = s1+dk
     return s2
+
 def checkPackValid(s,u,salt):
     if len(s)<16:
-        return ''
+        return b''
     s1 = s[-16:]
     s2 = s[:-16]
     uuid = binascii.unhexlify(u)
     dk = hashlib.pbkdf2_hmac('md5', s2, salt, 2)
     if dk != s1:
-        return ''
+        return b''
     if s2[:16] != uuid:
-        return ''
+        return b''
     return s2[16:]
 
 def checkPackValid2(s,salt):
     if len(s)<16:
-        return '',''
+        return '',b''
     s1 = s[-16:]
     s2 = s[:-16]
-
     dk = hashlib.pbkdf2_hmac('md5', s2, salt, 2)
     if dk != s1:
-        return '',''
+        return '',b''
     u = s2[:16]
     con = s2[16:]
-    return binascii.hexlify(u),con
-
+    return (binascii.hexlify(u)).decode(),con
 
 def checkPackValid_server(s,salt):
     if len(s)<16:
-        return '',''
+        return '',b''
     s1 = s[-16:]
     s2 = s[:-16]
     dk = hashlib.pbkdf2_hmac('md5', s2, salt, 2)
     if dk != s1:
-        return '',''
+        return '',b''
     if len(s2)<16:
-        return '',''
-    return binascii.hexlify(s2[:16]) ,s2[16:]
-
+        return '',b''
+    return (binascii.hexlify(s2[:16])).decode() ,s2[16:]
 
 def circleBig(a,b,bs=bufferSize):
     if a==b:
@@ -337,12 +331,12 @@ def circleAdd(a,b,bs=bufferSize):
 
 
 if __name__ == '__main__':
-    print circleAddOne(8,10)
-    print circleAddOne(9,10)
-    print circleRange(98,2,100)
-    u,s = makePack('sdfew','salt')
-    print u,s
-    s2 = checkPackValid(s, u, 'salt')
-    print s2
+    print (circleAddOne(8,10))
+    print (circleAddOne(9,10))
+    print (circleRange(98,2,100))
+    u,s = makePack(b'sdfew',b'salt')
+    print (u,s)
+    s2 = checkPackValid(s, u, b'salt')
+    print (s2)
 
           
