@@ -26,12 +26,12 @@ while True:
         m ['lp'] = ports
         import base64,json
         j = json.dumps(m)
-        s = base64.b64encode(j)
+        s = base64.b64encode(j.encode())
         ex = sys.executable
-        os.system('nohup %s %s/connServer.py %s >/dev/null &'%(ex,runningPath,s))
+        os.system('nohup %s %s/connServer.py %s >/dev/null &'%(ex,runningPath,s.decode()))
         print ('start server:',ports)
         import struct
-        re = ''
+        re = b''
         for one in ports:
             re+= struct.pack('H',one)
         m2 = {'con':re,'createTime':getRunningTime()}
@@ -43,6 +43,5 @@ while True:
             
     m = usedMap[sign]
     j = m['con']
-    j = j.encode()
     data = makePack_server(j, uuid, mySalt)
     sock.sendto(data,addr)

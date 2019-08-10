@@ -24,7 +24,8 @@ class connServer(connBase):
         while True:
             yield self.waitIdEvent.wait()
             self.waitIdEvent.clear()
-            for k,con in self.outputMap_byId.items():
+            for k in list(self.outputMap_byId.keys()):
+                con = self.outputMap_byId[k]
                 msg = con['msg']
                 v = msg.m_json
                 if v['type'] == 'conn':            
@@ -44,7 +45,7 @@ class connServer(connBase):
             yield self.addTask(msg2)
             return 
         
-        print 'accept,connMap length:',len(self.connMap) ,'cache writeBeforeConnMap:',len(self.writeBeforeConnMap)               
+        print ('accept,connMap length:',len(self.connMap) ,'cache writeBeforeConnMap:',len(self.writeBeforeConnMap) )              
         conn_seq_back = v['conn_id']
         m = {'ret':1,'id':k,'conn_id':conn_seq_back}
         msg2 = TOUMsg(m)
@@ -59,21 +60,21 @@ class connServer(connBase):
 if __name__ == "__main__":
     import sys
     ar = sys.argv
-    lp = range(10000,10000+maxPortNum)
+    lp = list(range(10000,10000+maxPortNum))
     rate = con_minRate
     pushAhead = con_pushAhead
     packLimit = con_packLimit
-    salt = 'salt'
+    salt = b'salt'
     if len(ar)>1:
-        s = ar[1]
+        s = ar[1].encode()
         import base64,json
         j = base64.b64decode(s)
-        m = json.loads(j)
+        m = json.loads(j.decode())
         lp = m['lp']
         rate = m['rate']
         pushAhead = m['pushAhead']
         packLimit = m['packLimit']
-        salt = m['salt']
+        salt = m['salt'].encode()
 
     t = connServer(lp,salt,rate,pushAhead,packLimit,'127.0.0.1',8080)  
     IOLoop.instance().start()
