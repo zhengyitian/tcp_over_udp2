@@ -112,7 +112,7 @@ con_maxRate = 0.5
 con_pushAhead = 2000
 con_packLimit = 1400
 regulateTimeSpan = 0.3
-perSecondPortsLimit = 30
+perSecondPortsLimit = 20
 def getCustomPortsLimit(currentPortNum,gotPacketsNum,lostPacketsNum,rawReadSpeed,rawWriteSpeed):
     if rawReadSpeed>250*1024:
         if  lostPacketsNum>10:

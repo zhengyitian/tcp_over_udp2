@@ -209,6 +209,11 @@ class UStreamClient(streamBase):
         if len(self.cachePort)>=self.MPort-self.LPort or self.decreaseDose==0:
             return False
         self.decreaseDose -= 1
+        if self.availPort:
+            n = list(self.availPort.keys())[0]
+            del self.availPort[n]
+            self.cachePort.append(n)
+            return False        
         self.cachePort.append(n)    
         return True
     

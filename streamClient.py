@@ -152,8 +152,8 @@ class UStreamClient(streamBase):
                 self.staTime = getRunningTime()  
                 bl = self.getLog()
                 t = int((getRunningTime()-self.startTime)*1000)/1000.0
-                s1 =  '%s  [p/g/o/new]    %s  %s  %s  %s  [l/ma/mi]  %2.3f  %2.3f  %2.3f  [s,r]  %s  %s  %s  %s'%\
-                    (t,maxPortNum-len(self.cachePort),self.statisGot,self.statisOut,self.newPortThisSecond,self.statusGapTime,\
+                s1 =  '%s  [p/rp/g/o/new]  %s  %s  %s  %s  %s  [l/ma/mi]  %2.3f  %2.3f  %2.3f  [s,r]  %s  %s  %s  %s'%\
+                    (t,maxPortNum-len(self.cachePort),len(self.sockMap),self.statisGot,self.statisOut,self.newPortThisSecond,self.statusGapTime,\
                      self.maxRecTime,self.minRecTime,\
                      getPackStaBigV(self.maxSendL),getPackStaBigV(self.peerMaxRec),getPackStaBigV(self.peerMaxSend),getPackStaBigV(self.maxRec))
                 s2 = '%s %s\n'%(t,bl)
@@ -181,6 +181,11 @@ class UStreamClient(streamBase):
         if len(self.cachePort)>=maxPortNum-minPortNum or self.decreaseDose==0:
             return False
         self.decreaseDose -= 1
+        if self.availPort:
+            n = list(self.availPort.keys())[0]
+            del self.availPort[n]
+            self.cachePort.append(n)
+            return False
         self.cachePort.append(n)    
         return True
     
