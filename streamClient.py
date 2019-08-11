@@ -252,8 +252,10 @@ class UStreamClient(streamBase):
                 recT = getRunningTime()-ti
                 if recT>self.maxRecTime:
                     self.maxRecTime = recT
+                    if self.maxRecTime>timeoutTime:
+                        self.maxRecTime=timeoutTime
                 if recT<self.minRecTime:
-                    self.minRecTime = recT    
+                    self.minRecTime = recT   
                 if self.retireSock(n):
                     sock.close()
                 else:

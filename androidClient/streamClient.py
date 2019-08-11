@@ -280,6 +280,8 @@ class UStreamClient(streamBase):
                 recT = getRunningTime()-ti
                 if recT>self.maxRecTime:
                     self.maxRecTime = recT
+                    if self.maxRecTime>self.iniTout:
+                        self.maxRecTime=self.iniTout                    
                 if recT<self.minRecTime:
                     self.minRecTime = recT    
                 if self.retireSock(n):
